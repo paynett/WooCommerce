@@ -1,4 +1,3 @@
-# WooCommerce
 
 # Wordpress WooCommerce Paynet SanalPOS Modülü 
 
