@@ -333,7 +333,7 @@ function init_payment_paynet_gateway_class()
 				
 					//Paynet secret keyi nesneye aktar
 					$paynet = new PaynetClient($this->secretkey, $this->test_mode);
-					$chargeParams = new ChargeChargeParameters();
+					$chargeParams = new ChargeParameters();
 					$chargeParams->session_id = $_REQUEST["session_id"];
 					$chargeParams->token_id = $_REQUEST["token_id"];
 				    $chargeParams->amount = PaynetTools::FormatWithoutDecimalSeperator($order->get_total());					
