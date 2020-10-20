@@ -3,7 +3,7 @@
 
 > Bu eklenti Wordpress 4.0 ve WooCommerce 3.0.0 ve üzeri versiyonlar ile tam uyumludur. WP 4.0 ve Woo 3.0 altindaki versiyonlarda test edilmemistir. 
 
-Paynet SanalPOS Modülü Wordpress WooCommerce e-ticaret sisteminize PayNet sanalPOS entegrasyonunu saglar. Bu eklenti ile müsterileirniz magazanizdan kredi kartlari ile alisveris yapabilirler. 
+Paynet SanalPOS Modülü Wordpress WooCommerce e-ticaret sisteminize Paynet sanalPOS entegrasyonunu saglar. Bu eklenti ile müsterileirniz magazanizdan kredi kartlari ile alisveris yapabilirler. 
 
   - Tamamen ücretsizdir ve açik kaynak kodludur.
   - Hiç bir kod modifikasyonu istemez. Kurulum ve kaldirma islemleri basittir.
@@ -13,8 +13,8 @@ Paynet SanalPOS Modülü Wordpress WooCommerce e-ticaret sisteminize PayNet sana
 
 # Kullanim Sartlari
 
-  - Paynet modülü PayNet Ödeme Kurulusu A.S tarafindan GPL lisansi ile açik kaynakli ve ücretsiz sunulmaktadir. Satilamaz.
-  - Paynet modülü PayNet Ödeme Kurulusu A.S 'nin sagladigi servisleri kullanmak için gelistirilmistir. Baska amaçla kullanilamaz.
+  - Paynet modülü Paynet Ödeme Kurulusu A.S tarafindan GPL lisansi ile açik kaynakli ve ücretsiz sunulmaktadir. Satilamaz.
+  - Paynet modülü Paynet Ödeme Kurulusu A.S 'nin sagladigi servisleri kullanmak için gelistirilmistir. Baska amaçla kullanilamaz.
   - Uluslararasi kabul görmüs güvenlik standartlarina göre ödeme yapilan kredi karti bilgilerine erisilmesi veya bilgilerin kayit edilmesi yasaktir. Bu eklenti orijinal kaynak kodlariyla müsterilerinizin kredi karti bilgilerini siteminize veya herhangi bir yere asla kaydetmez. Kaynak kodlarini bu kurallara uygun tutmak sizin sorumlulugunuzdadir.
   - Eklentinin kurulu olacagi magazaya ait version ve iletisim bilgileriniz (magaza eposta, Wordpress WooCommerce versiyonu v.b.) gelistirici teknik destek ve bilgilendirme sistemine otomatik kayit edilecek ve bu bilgiler önemli bildirimler ile güncellemelerden haberdar olmaniz için kullanilacaktir.
 
