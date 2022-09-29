@@ -995,7 +995,7 @@ class PaynetTools {
             if(!$v->ratio OR count($v->ratio) < 2)
                 continue;
             $return .= '
-			<div class="payment_paynet_bank" align="center" style="">
+			<div class="payment_paynet_banks" align="center" style="">
 			<img src="' . $v->bank_logo .'">';
             $return .= '<table class="inst_table table" style="">
 						<tr>
