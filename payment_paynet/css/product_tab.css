@@ -1,20 +1,27 @@
-.payment_paynet_bank img {
+.payment_paynet_banks img {
 	text-align:center;
 }
-.payment_paynet_bank {
-    width: 25%;
-    float: right;
-    padding: 1%;
-    border: 1px solid #eee;
+.payment_paynet_banks {
+    width: 150px;
+    height: 700px;
+    float: left;
+    border: 1px solid #aaa;
+    margin: 2px;
+    background: #fff;
+    padding: 2px;
     border-radius: 5px;
-    margin: 1%;
-	min-height:420px;
-	height:420px;
+    overflow-x:auto;
 }
-.payment_paynet_bank table tbody tr td{
-    padding: 3px 1px;
-	text-align: center
+
+.payment_paynet_banks table tbody tr td{
+	border-bottom: 1px solid #bbb;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+	overflow-x:auto;
+
 }
+
 
 #payment_paynet_payment_button a {
 	padding: 10px;
