@@ -379,7 +379,7 @@ function init_payment_paynet_gateway_class()
 							$order_fee = new stdClass();
 							$order_fee->id = 'komisyon-farki';
 							$order_fee->name =  $result->instalment. ' taksit ';
-							$order_fee->amount = $result->comission;
+							$order_fee->amount = 0;
 							$order_fee->taxable = $result->comission_tax ? true : false;
 							$order_fee->tax = $order_fee->taxable ? $result->comission_tax : 0;
 							$order_fee->tax_data = array();
@@ -489,11 +489,6 @@ function init_payment_paynet_gateway_class()
 		
 		$transaction = $payment_paynet->getTransactionDetails($xid);
 		
-		//print_R($transaction);
-		if ((int)$transaction->Data['code'] != 0 ){
-			echo $transaction->Data['message'];
-			return;
-		}
 		$tr = $transaction->Data[0];
 		//print_r($tr);
 		?>
