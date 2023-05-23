@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 } 
 ?>
-<div class="welcome-panel">
+<div class="welcome-panel" style="background-color:white !important">
 <i style="color:red">Eklentiyi kullanmaya başlamadan önce kullanım şartlarını kabul etmelisiniz.</i>
 <h1 align="center">Kullanım Şartları </h1>
 <ol>
