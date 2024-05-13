@@ -92,7 +92,30 @@ function init_payment_paynet_gateway_class()
 		}
 		/* 	Admin Panel Fields */
 		public function init_form_fields()
-		{
+		{	
+			$categories = [];
+			
+			if(get_bloginfo('version')>="4.5.0"){		
+				$categories = get_terms(array(
+					'taxonomy'   => "product_cat",
+					'number'     => false,
+					'orderby'    => 'name',
+					'order'      => 'ASC'
+				));
+			}
+			else{
+				$categories = get_terms('product_cat', array(
+					'number'     => false,
+					'order'      => 'name',
+					'orderby'    => 'ASC'
+				));
+			}
+		
+			$category_names = [];
+			foreach ($categories as $category) {
+				$category_names[$category->term_id] = $category->name;
+			}
+		
 			$this->form_fields = array(
 				'enabled' => array(
 					'title' => 'Aktif',
@@ -132,7 +155,7 @@ function init_payment_paynet_gateway_class()
 					'desc_tip' => 'Firma secret key. destek@paynet.com.tr adresinden test ve canlı sistemi için temin edebilirsiniz.',
 				),
 				'dataagent' => array(
-					'title' => '(opsiyonel) Cari Kodu',
+					'title' => 'Cari Kodu (opsiyonel)',
 					'type' => 'text',
 					'desc_tip' => 'Ödemeyi alanın ya da yapanın firmadaki cari hesap kodu. 
 					Bu alanda firma bayisi cari hesap kodu ya da bayinin Paynet altındaki kodu gönderilebilir. 
@@ -185,6 +208,12 @@ function init_payment_paynet_gateway_class()
 						'test' => 'Açık (Ödemeler gerçekten alınmayacak)',
 					),
 				),
+				'no_instalment_categories' => array(
+					'title' => 'Taksit Yapılmayacak Kategoriler (opsiyonel) ',
+					'type' => 'multiselect',
+					'options' => $category_names,
+					'desc_tip' => 'Taksit yapılmasını istemediğiniz kategorileri seçiniz. Çoklu seçim yapmak için CTRL tuşunu kullanabilirsiniz.',
+				)
 			);
 		}
 // End init_form_fields()
@@ -245,6 +274,7 @@ function init_payment_paynet_gateway_class()
 	                    data-agent="'.$this->dataagent.'"
 	                    data-add_commission_amount="'.($this->add_commission ? 'true': 'false').'"
 						data-installments="'.($this->installments).'"
+						data-no_instalment="'.($this->noInstalmentForOrder($id_order) ? 'true': 'false').'"
 						data-ratio_code="'.$this->ratio_code.'"
 	                    data-tds_required="'.(isset($this->force_tds) && $this->force_tds ? 'true' : 'false').'"
 	                    data-pos_type="5">
@@ -253,6 +283,28 @@ function init_payment_paynet_gateway_class()
 			';
 			return $txt;
 		}
+		
+		private function noInstalmentForOrder($order_id)
+		{
+			$order = new WC_Order($order_id);
+			
+			$no_instalment = false;
+			
+			foreach($order->get_items() as $item_id => $item){
+				
+				$product = $item->get_product();
+				
+				foreach($product->category_ids as $category_id){
+					
+					if(is_array($this->no_instalment_categories) && in_array($category_id, $this->no_instalment_categories)){
+						$no_instalment = true;
+					}
+				}
+			}
+			
+			return $no_instalment;
+		}
+		
 		/**
 		 * Generates secure key
 		 */
@@ -340,7 +392,8 @@ function init_payment_paynet_gateway_class()
 					$chargeParams->add_comission_amount = $this->add_commission ? 'true': 'false';	
 					$chargeParams->tds_required = $this->force_tds ? 'true' : 'false';											
 					$chargeParams->ratio_code = $this->ratio_code;
-					$chargeParams->installments = $this->installments;	
+					$chargeParams->installments = $this->installments;
+					$chargeParams->no_instalment = $this->noInstalmentForOrder($orderid);
 								
 					//Charge işlemini çalıştırır
 					$result = $paynet->ChargePost($chargeParams);					
@@ -541,6 +594,19 @@ function init_payment_paynet_gateway_class()
 	{
 		global $woocommerce;
 		global $product;
+		
+		$settings = get_option("woocommerce_payment_paynet_settings");
+		
+		if(is_array($settings) && array_key_exists("no_instalment_categories", $settings))
+		{
+			foreach($product->category_ids as $category_id){
+				if(is_array($settings["no_instalment_categories"]) && in_array($category_id, $settings["no_instalment_categories"])){
+					echo "<div class='no_instalment_info'>Bu ürüne taksit uygulanamamaktadır.</div>";
+					return;
+				}
+			}
+		}
+		
 		$rates = new payment_paynet();
 		
 		$installments = PaynetTools::getProductInstallments((float) $product->get_price(), $rates->getRates(null, true)->data);
