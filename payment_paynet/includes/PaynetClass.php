@@ -1015,16 +1015,16 @@ class PaynetTools {
 					$return .= 				 	
 				'<tr>			
 					<td>'.$r->instalment.'  <span style="color:red">(+</span><span style="color:red">  '.$r->plus_installment.' </span><span style="color:red">) </span> </td>
-				    <td class="' . $k . '">' . number_format(($price*(1+$r->ratio))/($r->instalment+ $r->plus_installment), 2 ). '</td>
-					<td class="' . $k . '">' . number_format($price*(1+$r->ratio), 2) . '</td>				    
+				    <td class="' . $k . '">' . number_format(($price*(1/(1-$r->ratio)))/($r->instalment+ $r->plus_installment), 2 ). '</td>
+					<td class="' . $k . '">' . number_format($price*(1/(1-$r->ratio)), 2) . '</td>				    
 				</tr>';
 				}
 				else{
 					$return .= 				 	
 				'<tr>				
 					<td>'.$r->instalment.' </td>
-					<td class="' . $k . '">' . number_format(($price*(1+$r->ratio))/($r->instalment+ $r->plus_installment), 2 ). '</td>
-					<td class="' . $k . '">' . number_format($price*(1+$r->ratio), 2) . '</td>				    
+					<td class="' . $k . '">' . number_format(($price*(1/(1-$r->ratio)))/($r->instalment+ $r->plus_installment), 2 ). '</td>
+					<td class="' . $k . '">' . number_format($price*(1/(1-$r->ratio)), 2) . '</td>				    
 				</tr>';
 				}               
             }
