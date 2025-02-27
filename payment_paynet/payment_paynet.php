@@ -44,6 +44,7 @@ function init_payment_paynet_gateway_class()
 			add_action('admin_enqueue_scripts', array($this, 'register_payment_paynet_admin_styles'));
 			add_action('woocommerce_receipt_' . $this->id, array($this, 'receipt_page'));
 			add_action('woocommerce_thankyou_' . $this->id, array($this, 'receipt_page'));
+			add_action( 'woocommerce_before_thankyou', 'after_successful_order_page');
 			if (is_admin())
 				add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
 			//Paynet SETTINGS
@@ -444,9 +445,12 @@ function init_payment_paynet_gateway_class()
 						$order->update_status('processing', __('Processing Paynet payment', 'woocommerce'));
 						$order->add_order_note('Ödeme Paynet ile tamamlandı. İşlem no: #' . $result->xact_id. ' Tutar ' . $result->amount . ' Taksit: ' .  $result->installment . ' Ödenen:' . $result->net_amount);
 						update_post_meta($orderid, '_xact_id',$result->xact_id);
+						update_post_meta($orderid, 'total_amount',$result->amount);
+						update_post_meta($orderid, '_instalment',$result->instalment);
+						update_post_meta($orderid, '_plus_installment',$result->plus_installment);
 						$order->payment_complete();
 						WC()->cart->empty_cart();
-						wp_redirect($this->get_return_url());
+						wp_redirect($this->get_return_url($order));
 					} else {
 						$order->update_status('pending', 'Pending payment', 'payment-payment');
 						$gateway_error = __('Your bank responsed:') . '(' . $result->code . ') ' . $result->message.' '.$this->paynet_error_message;
@@ -457,8 +461,12 @@ function init_payment_paynet_gateway_class()
 					$gateway_error = $e->getMessage();
 				}
 			}
-			$form = $this->createCheckoutEmbedForm($orderid);
-			include(dirname(__FILE__) . '/includes/embed.php');
+			
+			if ( !$order->is_paid())
+			{	
+				$form = $this->createCheckoutEmbedForm($orderid);
+				include(dirname(__FILE__) . '/includes/embed.php');
+			}
 		}
 		
 		private function registerPaynet()
@@ -612,4 +620,67 @@ function init_payment_paynet_gateway_class()
 		$installments = PaynetTools::getProductInstallments((float) $product->get_price(), $rates->getRates(null, true)->data);
 		echo $installments;
 	}
+}
+function after_successful_order_page($order_id) {
+    if (!$order_id) {
+        return;
+    }
+
+    $total_amount = get_post_meta($order_id, 'total_amount', true);
+    $instalment = get_post_meta($order_id, '_instalment', true);
+    $plus_instalment = get_post_meta($order_id, '_plus_installment', true);
+
+    if ($instalment == 0) {
+        $instalment_display = "Tek Çekim";
+    } elseif ($plus_instalment > 0) {
+        $instalment_display = "$instalment + $plus_instalment";
+    } else {
+        $instalment_display = "$instalment";
+    }
+
+    $total_instalments = $instalment + $plus_instalment;
+    $monthly_payment = ($total_instalments > 0) ? number_format($total_amount / $total_instalments, 2, ',', '.') . " ₺" : "";
+	echo "<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        var tables = [
+            document.querySelector('.wc-block-order-confirmation-totals__table'),
+            document.querySelector('section.woocommerce-order-details table')
+        ];
+
+        tables.forEach(function(table) {
+            if (table) {
+                // Önceki tablo içeriğini temizle
+                table.innerHTML = '';
+
+                // Yeni <tbody> oluştur
+                var newTbody = document.createElement('tbody');
+
+                // Karttan Çekilen Tutar
+                var row1 = document.createElement('tr');
+                row1.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Karttan Çekilen Tutar:</th>' +
+                                '<td class=\"wc-block-order-confirmation-totals__total\">" . number_format($total_amount, 2, ',', '.') . " ₺</td>';
+                newTbody.appendChild(row1);
+
+                // Aylık Ödeme (Eğer toplam taksit sıfırdan büyükse)
+                if ($total_instalments > 0) {
+                    var row2 = document.createElement('tr');
+                    row2.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Aylık Ödeme:</th>' +
+                                    '<td class=\"wc-block-order-confirmation-totals__total\">" . number_format(($total_amount / $total_instalments), 2, ',', '.') . " ₺</td>';
+                    newTbody.appendChild(row2);
+                }
+
+                // Taksit Sayısı
+                var row3 = document.createElement('tr');
+                row3.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Taksit Sayısı:</th>' +
+                                '<td class=\"wc-block-order-confirmation-totals__total\">" . ($plus_instalment > 0 ? $instalment . ' + ' . $plus_instalment : $instalment) . "</td>';
+                newTbody.appendChild(row3);
+
+                // Yeni <tbody>'yi tabloya ekle
+                table.appendChild(newTbody);
+            }
+        });
+    });
+</script>";
+
 }
