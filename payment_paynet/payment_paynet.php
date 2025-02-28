@@ -271,7 +271,6 @@ function init_payment_paynet_gateway_class()
 	                    data-amount= '.PaynetTools::FormatWithoutDecimalSeperator($order->get_total()).'
 	                    data-image="'.$this->logo_url.'"
 	                    data-button_label="'.__('Ödemeyi Tamamla', 'woocommerce').'"
-	                    data-description="Ödemenizi tamamlamak için bilgileri girip tamam butonuna basınız"
 	                    data-agent="'.$this->dataagent.'"
 	                    data-add_commission_amount="'.($this->add_commission ? 'true': 'false').'"
 						data-installments="'.($this->installments).'"
