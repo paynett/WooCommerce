@@ -27,5 +27,5 @@ Paynet SanalPOS Modülü Wordpress WooCommerce e-ticaret sisteminize Paynet sana
 
 # Yardim 
 
-* [Paynet web](https://paynet.com.tr) - Paynet Ödeme Kurulusu A.S.
+* [Paynet web](https://paynet.com.tr) - Paynet Ödeme Kurulusu A.Ş.
 
