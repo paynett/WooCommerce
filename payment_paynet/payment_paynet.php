@@ -625,6 +625,10 @@ function after_successful_order_page($order_id) {
         return;
     }
 
+    $order = new WC_Order( $order_id );
+    if ($order->get_payment_method() != 'payment_paynet')
+        return;
+	
     $total_amount = get_post_meta($order_id, 'total_amount', true);
     $instalment = get_post_meta($order_id, '_instalment', true);
     $plus_instalment = get_post_meta($order_id, '_plus_installment', true);
