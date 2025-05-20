@@ -638,6 +638,7 @@ function after_successful_order_page($order_id) {
     }
 
     $total_instalments = $instalment + $plus_instalment;
+    $total_instalments = $total_instalments == 0 ? 1 : $total_instalments;
     $monthly_payment = ($total_instalments > 0) ? number_format($total_amount / $total_instalments, 2, ',', '.') . " ₺" : "";
 	echo "<script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -662,7 +663,7 @@ function after_successful_order_page($order_id) {
                 newTbody.appendChild(row1);
 
                 // Aylık Ödeme (Eğer toplam taksit sıfırdan büyükse)
-                if ($total_instalments > 0) {
+                if ($total_instalments > 1) {
                     var row2 = document.createElement('tr');
                     row2.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Aylık Ödeme:</th>' +
                                     '<td class=\"wc-block-order-confirmation-totals__total\">" . number_format(($total_amount / $total_instalments), 2, ',', '.') . " ₺</td>';
