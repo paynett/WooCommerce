@@ -312,6 +312,20 @@ class PaynetClient
 		else
 			echo "Sonuç değişkeni boş";
 	}
+
+
+		public function GetTransactionSlip($xact_id)
+	{
+		$params = new stdClass();
+		$params->xact_id = $xact_id;
+		$this->json_result = $this->LoadJson("v1/transaction/slip", $params);
+
+		if (isset($this->json_result->url)) 
+		{
+            return $this->json_result->url;
+        }
+        return null;
+	}
 	
 	
 	
