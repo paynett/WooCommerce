@@ -527,7 +527,7 @@ function init_payment_paynet_gateway_class()
 	add_filter('woocommerce_payment_gateways', 'payment_paynet');
 	add_filter('woocommerce_product_tabs', 'payment_paynet_installment_tab');
 	add_action('woocommerce_order_actions_start', 'payment_paynet_order_details');
-	
+
 	function paynet_enqueue_style_after_wc(){
         wp_enqueue_style( 'my-style', plugins_url().'/payment_paynet/css/product_tab.css', array(), '2.0' );
 	}
@@ -575,17 +575,9 @@ function init_payment_paynet_gateway_class()
 			<tr>
 				<td>Sonuç </td><td> <?php echo $tr->message ?> <?php echo $tr->is_tds ? '3D ile ödendi' : '' ?></td>
 			</tr>
-			<tr>
-				<td>Kredi Kartı</td><td> <?php
-		echo $tr->card_no
-		. '<br/> ' . $tr->card_holder
-		. '<br/>'. $tr->card_type.' '.$tr->bank_id;
-		?></td>
-			</tr>
-		</table>
-		</div>
-		<hr/>
-		<?php
+			<tr><td>Kredi Kartı</td><td> <?php echo $tr->card_no.'<br/> '.$tr->card_holder.'<br/>'. $tr->card_type.' '.$tr->bank_id; ?></td></tr>
+        </table>
+        <?php
 	}
 	function payment_paynet_installment_tab($tabs)
 	{
@@ -620,7 +612,34 @@ function init_payment_paynet_gateway_class()
 		echo $installments;
 	}
 }
-function after_successful_order_page($order_id) {
+
+
+	function get_slip_url($order_id) 
+	{
+		$order = wc_get_order($order_id);
+		if (!$order || $order->get_payment_method() !== 'payment_paynet') return '';
+
+		$xact_id = get_post_meta($order_id, '_xact_id', true);
+		if (!$xact_id) return '';
+
+		try {
+			$settings = get_option('woocommerce_payment_paynet_settings');
+			$secretkey = isset($settings['secretkey']) ? $settings['secretkey'] : '';
+			$mode = isset($settings['test_mode']) ? $settings['test_mode'] : 'prod';
+
+			$paynet = new PaynetClient($secretkey, $mode);
+			$url = $paynet->GetTransactionSlip($xact_id);
+
+			return $url ? $url : '';
+		} catch (Exception $e) {
+			error_log("Dekont alınamadı: " . $e->getMessage());
+			return '';
+		}
+	}
+
+
+	function after_successful_order_page($order_id) 
+	{
     if (!$order_id) {
         return;
     }
@@ -628,6 +647,7 @@ function after_successful_order_page($order_id) {
     $total_amount = get_post_meta($order_id, 'total_amount', true);
     $instalment = get_post_meta($order_id, '_instalment', true);
     $plus_instalment = get_post_meta($order_id, '_plus_installment', true);
+	$slip_url = get_slip_url($order_id);
 
     if ($instalment == 0) {
         $instalment_display = "Tek Çekim";
@@ -639,6 +659,7 @@ function after_successful_order_page($order_id) {
 
     $total_instalments = $instalment + $plus_instalment;
     $monthly_payment = ($total_instalments > 0) ? number_format($total_amount / $total_instalments, 2, ',', '.') . " ₺" : "";
+	
 	echo "<script>
     document.addEventListener('DOMContentLoaded', function() {
 
@@ -662,7 +683,7 @@ function after_successful_order_page($order_id) {
                 newTbody.appendChild(row1);
 
                 // Aylık Ödeme (Eğer toplam taksit sıfırdan büyükse)
-                if ($total_instalments > 0) {
+                if ($total_instalments > 1) {
                     var row2 = document.createElement('tr');
                     row2.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Aylık Ödeme:</th>' +
                                     '<td class=\"wc-block-order-confirmation-totals__total\">" . number_format(($total_amount / $total_instalments), 2, ',', '.') . " ₺</td>';
@@ -674,6 +695,12 @@ function after_successful_order_page($order_id) {
                 row3.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Taksit Sayısı:</th>' +
                                 '<td class=\"wc-block-order-confirmation-totals__total\">" . ($plus_instalment > 0 ? $instalment . ' + ' . $plus_instalment : $instalment) . "</td>';
                 newTbody.appendChild(row3);
+
+				// Dekont Bilgisi
+                var row4 = document.createElement('tr');
+                row4.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Dekont:</th>' +
+								'<td class=\"wc-block-order-confirmation-totals__total\"><a class=\"button button-primary\" href=\"" . esc_url($slip_url) . "\" target=\"_blank\">Görüntüle / İndir</a></td>'
+                newTbody.appendChild(row4);
 
                 // Yeni <tbody>'yi tabloya ekle
                 table.appendChild(newTbody);
