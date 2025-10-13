@@ -452,7 +452,7 @@ function init_payment_paynet_gateway_class()
 						wp_redirect($this->get_return_url($order));
 					} else {
 						$order->update_status('pending', 'Pending payment', 'payment-payment');
-						$gateway_error = __('Your bank responsed:') . '(' . $result->code . ') ' . $result->message.' '.$this->paynet_error_message;
+						$gateway_error = __('Banka Cevabınız:') . '(' . $result->code . ') ' . $result->message . (isset($this->paynet_error_message) ? ' ' . $this->paynet_error_message : '');
 					}
 				}
 				catch (PaynetException $e)
@@ -686,7 +686,7 @@ function init_payment_paynet_gateway_class()
                 if ($total_instalments > 1) {
                     var row2 = document.createElement('tr');
                     row2.innerHTML = '<th class=\"wc-block-order-confirmation-totals__label\" scope=\"row\">Aylık Ödeme:</th>' +
-                                    '<td class=\"wc-block-order-confirmation-totals__total\">" . number_format(($total_amount / $total_instalments), 2, ',', '.') . " ₺</td>';
+                                    '<td class=\"wc-block-order-confirmation-totals__total\">" .number_format(($total_instalments ? ($total_amount / $total_instalments) : 0), 2, ',', '.') . " ₺</td>';
                     newTbody.appendChild(row2);
                 }
 
@@ -710,3 +710,4 @@ function init_payment_paynet_gateway_class()
 </script>";
 
 }
+
